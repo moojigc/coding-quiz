@@ -1,15 +1,15 @@
 
 // Declare global vars
 var userName;
+var userNameArray = [];
 var userScore = 0;
 var userScoreArray = [];
-var timeElapsed;
 const wrapperDiv = $("#wrapper");
 const questionDiv = $("#question-div");
 const answerDiv = $("#answer-div");
 const answerRow = $(".answer-row");
 const submitBtn = $("#submit-button");
-var totalTime = 300;
+var totalTime = 90;
 var timeElapsed = 0;
 var userAnswer;
 var quizAttempts = 0;
@@ -48,20 +48,24 @@ const question5 = {
     question: "(5) In a given array, var Arr = ['cats', 'dogs,' 'hamsters'], what is the value of 'Arr[2]'?",
     answers: ["2", "cats", "dogs", "hamsters"],
     correctAnswer: "hamsters",
+    userIsCorrect: false,
 }
 
 const question6 = { 
     question: "(6) A very useful tool for debugging and developing in JavaScript is:",
-    answers: ["for loops", "objects", "console.log", "objects"]
+    answers: ["for loops", "objects", "console.log", "if statement"],
+    correctAnswer: "console.log",
+    userIsCorrect: false,
 }
 
-const question6 = {
+const question7 = {
     question: "(7) In JavaScript, if you perform the operation {'Hello World' + 2} and log it to the console, what the result be?",
     answers: ["12; The number of letters plus 2", "13; The number of letters plus space plus 2", "Hello World2"],
     correctAnswer: "Hello World2",
+    userIsCorrect: false,
 }
 
-const questionsArray = [question1, question2, question3, question4];
+const questionsArray = [question1, question2, question3, question4, question5, question6, question7];
 
 // Need a function to create the question...
 function createQuestion(questionNumber) {
@@ -77,7 +81,7 @@ function createAnswers(questionNumber) {
         h2Label.text(labels[i]);
 
         var rowDiv = $("<div>").addClass("row");
-        var answerButton = $("<button>").addClass("col-sm-10 btn btn-secondary answer");
+        var answerButton = $("<button>").addClass("col-sm-10 btn btn-outline-secondary answer");
         answerButton.attr("id", "answer-" + [i])
         var h3TextDiv = $("<h3>").text(questionNumber.answers[i]);
 
@@ -101,47 +105,41 @@ function renderTimer() {
         $("#timer").text("Time Left: " + minutesLeft + ":" + secondsLeftFormatted);
     };
 }
+
+var interval;
 function startTimer() {
     interval = setInterval(function() {
         renderTimer();
         timeElapsed++;
-        if (currentQuestion === questionsArray.length) {
-            clearInterval(interval);
-        } else if (timeElapsed === 300) {
-            alert("Times up!")
-        }
     }, 1000);
+    if (currentQuestion > questionsArray.length) {
+        clearInterval(interval);
+    } else if (timeElapsed == 90) {
+        alert("Times up!")
+        clearInterval(interval);
+    }
 }
 
 // Begins quiz
 function beginQuiz() {
-    $("#start-quiz-button").remove();
-    $("#username-input").remove();
-    $("#introduction").remove();
+    $("#start-quiz-button").attr("style", "display: none;");
+    $("#username-input").attr("style", "display: none;");
+    $("#introduction").attr("style", "display: none;");
     submitBtn.attr("style", "display: block;") 
-    createQuestion(questionsArray[0]);
-    createAnswers(questionsArray[0]);
+    createQuestion(questionsArray[currentQuestion]);
+    createAnswers(questionsArray[currentQuestion]);
     startTimer();
 }
 
 var answerBtnArray = [];
 // Need a function to save the user answer
 function getUserAnswer() {
-    console.log(this.textContent);
-    userAnswer = this.textContent;
-    // The following is supposed to help the user see what answer they are submitting. doesn't work though
-    var answerBtnArray = $(".answer");
-    if (answerBtnArray[0].class == "col-sm-10 btn btn-success answer" || 
-            answerBtnArray[1].class == "col-sm-10 btn btn-success answer" || 
-                answerBtnArray[2].class == "col-sm-10 btn btn-success answer" ||
-                    answerBtnArray[3].class == "col-sm-10 btn btn-success answer") {
+    userAnswer = $(this).text(); 
 
-        answerBtnArray[0,1,2,3].removeClass();
-        answerBtnArray[0,1,2,3].addClass("col-sm-10 btn btn-info answer");
-        $(this).attr("class", "col-sm-10 btn btn-success answer");
-    } else {
-        $(this).attr("class", "col-sm-10 btn btn-success answer");
-    }
+    // The following is supposed to help the user see what answer they are submitting.
+    $(".answer").attr("class", "col-sm-10 btn btn-outline-secondary answer");
+    $(this).removeClass();
+    $(this).addClass("col-sm-10 btn btn-success answer");
 
 }
 
@@ -150,25 +148,34 @@ function checkUserCorrect() {
     if (userAnswer === questionsArray[currentQuestion].correctAnswer) {
         questionsArray[currentQuestion].userIsCorrect = true;
         userScore++;
+        var correctAnsAlert = $("<h2>").addClass("shadow-none p-3 mb-5 bg-light rounded border-top")
+        correctAnsAlert.text("Correct! Nice job!");
+        answerDiv.append(correctAnsAlert);
+
     } else {
         questionsArray[currentQuestion].userIsCorrect = false;
+        timeElapsed = timeElapsed + 10;
+        var wrongAnsAlert = $("<h2>").addClass("shadow-none p-3 mb-5 bg-light rounded border-top")
+        wrongAnsAlert.text("Wrong answer!");
+        answerDiv.append(wrongAnsAlert);
     }
     console.log(questionsArray[currentQuestion].userIsCorrect);
 }
 
-// Answer button event listeners
+// Without putting the eventListener in a func, $(this) keyword does not work properly
 function getAnswerClicks() {
     $(".answer").on("click", getUserAnswer);
 }
 
-// Need a function to store username 
+// Stores username, prints to HTML, saves to localStorage. 
 function getUserNameAndStartQuiz() {
     userName = $("#username-input").val();
     $("#user-name-display").text(userName); 
-    localStorage.setItem("username", userName);
-    // starts the quiz
+    userNameArray.push(userName);
+    // Starts the quiz, calls $(".answer") eventListener, appends userScore
     beginQuiz();
     getAnswerClicks();
+    $("#user-score").append(userScore);
 }
 
 // Display username and score
@@ -177,43 +184,67 @@ function highScore() {
     questionDiv.append(scoreDisplayDiv);
 }
 
-// Global event listeners
-$("#username-input").on("change", getUserNameAndStartQuiz);
-$("#start-quiz-button").on("click", getUserNameAndStartQuiz);
+// Save all user scores
+var individualUserScoreArray = [];
+function saveUserScores() {
+    userScoreArray.push(userScore);
+    individualUserScore = userNameArray[quizAttempts] + ": " + userScoreArray[quizAttempts];
+    individualUserScoreArray.push(individualUserScore);
+    for(var i=0; i<quizAttempts; i++) {
+        localStorage.setItem("UserScores", JSON.stringify(individualUserScoreArray));
+        $("#highscores-display").html(individualUserScoreArray[i]);
+    }
+}
 
-// Calls the next quiz as well as call many other important functions.
+// Calls the next quiz as well as call many other important functions. Honestly should clean this up but it works lol.
 var currentQuestion = 0;
 function continueQuiz() {
+    // If statement to check if all the questions have been answered or not.
     if (currentQuestion < (questionsArray.length - 1)) {
+        // Empty both divs...
         questionDiv.empty();
         answerDiv.empty();
         
+        // Checks if user is correct, then increments question#, prints next question, and gets userAnswer.
         checkUserCorrect();
         currentQuestion++;
         createQuestion(questionsArray[currentQuestion]);
         createAnswers(questionsArray[currentQuestion]);
         getAnswerClicks();
+    
+    // Brings the user to the end screen where they see their score.
     } else {
         checkUserCorrect();
-        alert("You done");
         questionDiv.empty();
         answerDiv.empty();
-        $("#timer").attr("style", "display: none;")
+        $("#timer").empty();
         $("#user-score").empty();
+        $("user-name-display").text(userName + ": " + "got " + userScore + "/7 correct.");
+        
         submitBtn.attr("style", "display: none;");
-        // Create retry button, increase userAttempts
-        retryBtn = $("<button>").addClass("btn btn-outline-primary btn-sm");
-        retryBtn.text("Retry");
-        retryBtn.attr("id", "retry-button");
-        retryBtn.attr("style", "margin: 1rem auto 0 auto;")
-        $("#submit-retry-button-div").append(retryBtn);
+        $("#retry-button").attr("style", "display: block;")
+        $("#highscores-button").attr("style", "display: block;")
+        
+        // Saves user scores to local storage
+        saveUserScores();
 
-        highScore();
+        $("#retry-button").on("click", retryQuiz);
     }
 }
 
-// 
+// Retry quiz
+function retryQuiz() {
+    $("#start-quiz-button").attr("style", "display: block;");
+    $("#username-input").attr("style", "display: block;");
+    $("#introduction").attr("style", "display: block;");
+    quizAttempts++;
+    currentQuestion = 0;
+    userScore = 0;
+    $("#retry-button").attr("style", "display: none;");
+    $("#highscores-button").attr("style", "display: none;");
+}
 
+// Global event listeners
 $("#submit-button").on("click", continueQuiz);
-
-// Need a function to save score
+$("#username-input").on("change", getUserNameAndStartQuiz);
+$("#start-quiz-button").on("click", getUserNameAndStartQuiz);

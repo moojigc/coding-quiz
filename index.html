@@ -9,6 +9,7 @@
     <link rel="stylesheet" type="text/css" href="assets/style.css">
     <link rel="stylesheet" type="text/css" href="assets/media.css">    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -60,17 +61,35 @@
         </div>
     </header>
 
+    <div class="modal fade" id="highscores-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLabel">High Scores</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div id="highscores-display" class="modal-body">
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     <main id="wrapper" class="container-lg shadow p-3 mb-5 bg-white rounded">
         <div class="jumbotron">
             <h1 class="display-4">Test Your Coding Knowledge!</h1>
             <input id="username-input" class="form-control" placeholder="Enter your name here to begin." value=""></input>
             <button id="start-quiz-button" class="btn btn-sm btn-success">Start</button>
             <hr class="my-4">
-            <h2 id="introduction" class="lead">Welcome to Moojig's Coding Quiz. You will be given 5 minutes to answer 10 multiple-choice questions. Good luck.</h2>
+            <h2 id="introduction" class="lead">Welcome to Moojig's Coding Quiz. You will be given 1 minute 30 seconds to answer 10 multiple-choice questions. Good luck.</h2>
             <h2 id="question-div" class="lead"></h2>
             <div class="d-flex justify-content-between" style="width: 80%; margin-left: auto; margin-right: auto;">
                 <p id="user-name-display"></p>
-                <p id="timer">Time Left: 5:00</p>
+                <p id="timer">Time Left: 1:30</p>
                 <p id="user-score">Score: </p>
             </div>
         </div>
@@ -79,7 +98,11 @@
         </div>
             <div id="submit-retry-button-div" class="row">
                 <button id="submit-button" class="btn btn-primary btn-sm" style="display: none;">Submit</button>
+                <button id="highscores-button" type="button" class="btn btn-info btn-sm" style="display: none;" data-toggle="modal" data-target="#highscores-modal">View high scores</button>
+                <button id="retry-button" class="btn btn-outline-primary btn-sm" style="display: none;">Retry</button>
+               
             </div>
+            
             
         </div>
     </main>
