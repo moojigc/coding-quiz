@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="UTF-8">
+    <title>A Coding Quiz by Moojig</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Noto+Sans+JP|Oxanium|Roboto|Sawarabi+Gothic&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="assets/style.css">
+    <link rel="stylesheet" type="text/css" href="assets/media.css">    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <header id="header-en">
+        <!-- Hidden img on desktop??? -->
+        <div class="mobile-logo-container mobile">
+            <img id="mobile-image" class="navbar-brand mobile" src="assets/moojig-logo-white.png" alt="Moojig-logo">
+        </div>
+        <!-- Desktop navbar???? -->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark desktop">
+            <img class="navbar-brand desktop" src="assets/moojig-logo-white.png" alt="Moojig-logo">
+
+            <div id="navbarSupportedContent">
+              <ul class="navbar-nav mr-auto">
+                <li class="nav-item active">
+                  <a class="nav-link" href="index.html">About</span></a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="portfolio.html">Portfolio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="contact.html">Contact</a>
+                </li>
+                <!-- <a href="" class="btn btn-primary language-button">
+                    日本語
+                </a> -->
+              </ul>
+            </div>
+        </nav>
+        <!-- Mobile navbar???? -->
+        <div class="navbar navbar-expand-lg navbar-light bg-light mobile">
+            <div id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                  <li class="nav-item active">
+                    <a class="nav-link" href="index.html">About</span></a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="portfolio.html">Portfolio</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="contact.html">Contact</a>
+                  </li>
+                  <!-- <a href="" class="btn btn-primary language-button">
+                      日本語
+                  </a> -->
+                  
+                </ul>
+              </div>
+        </div>
+    </header>
+
+    <main id="wrapper" class="container-lg shadow p-3 mb-5 bg-white rounded">
+        <div class="jumbotron">
+            <h1 class="display-4">Test Your Coding Knowledge!</h1>
+            <input id="username-input" class="form-control" placeholder="Enter your name here to begin." value=""></input>
+            <button id="start-quiz-button" class="btn btn-sm btn-success">Start</button>
+            <hr class="my-4">
+            <h2 id="introduction" class="lead">Welcome to Moojig's Coding Quiz. You will be given 5 minutes to answer 10 multiple-choice questions. Good luck.</h2>
+            <h2 id="question-div" class="lead"></h2>
+            <div class="d-flex justify-content-between" style="width: 80%; margin-left: auto; margin-right: auto;">
+                <p id="user-name-display"></p>
+                <p id="timer">Time Left: 5:00</p>
+                <p id="user-score">Score: </p>
+            </div>
+        </div>
+        <div id="answer-div" class="container-fluid">
+            
+        </div>
+            <div id="submit-retry-button-div" class="row">
+                <button id="submit-button" class="btn btn-primary btn-sm" style="display: none;">Submit</button>
+            </div>
+            
+        </div>
+    </main>
+    <script src="assets/script.js" type="text/javascript"></script>
+
+</body>
