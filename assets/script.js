@@ -121,10 +121,8 @@ function startTimer() {
 
 // Begins quiz
 function beginQuiz() {
-    $("#start-quiz-button").attr("style", "display: none;");
-    $("#username-input").attr("style", "display: none;");
-    $("#introduction").attr("style", "display: none;");
-    submitBtn.attr("style", "display: block;") 
+    $("#info-display").attr("style", "display: block;");
+    submitBtn.attr("style", "display: block;");
     createQuestion(questionsArray[currentQuestion]);
     createAnswers(questionsArray[currentQuestion]);
     startTimer();

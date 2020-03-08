@@ -73,6 +73,7 @@
     }
     #submit-button {
         padding: .5rem 3rem .5rem 3rem;
+        font-size: 200%;
     }
     p {
         font-size: 3rem;
@@ -84,7 +85,7 @@
         height: 4rem;
     }
     input::placeholder {
-        font-size: 200%;
+        font-size: 300%;
     }
     #start-quiz-button {
         padding: .5rem 3rem .5rem 3rem;
