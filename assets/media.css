@@ -63,6 +63,32 @@
     .language-button {
         font-size: 0.5em;
     }
+
+    /* Specific to this page */
+    .answer {
+        height: 4em;
+    }
+    h3 { 
+        font-size: 3rem;
+    }
+    #submit-button {
+        padding: .5rem 3rem .5rem 3rem;
+    }
+    p {
+        font-size: 3rem;
+    }
+    .lead {
+        font-size: 150%;
+    }
+    #username-input {
+        height: 4rem;
+    }
+    input::placeholder {
+        font-size: 200%;
+    }
+    #start-quiz-button {
+        padding: .5rem 3rem .5rem 3rem;
+    }
     /* end navbar stuff */
 }
 

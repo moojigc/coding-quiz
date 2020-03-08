@@ -9,7 +9,7 @@ const questionDiv = $("#question-div");
 const answerDiv = $("#answer-div");
 const answerRow = $(".answer-row");
 const submitBtn = $("#submit-button");
-var totalTime = 90;
+var totalTime = 60;
 var timeElapsed = 0;
 var userAnswer;
 var quizAttempts = 0;
@@ -76,16 +76,15 @@ function createQuestion(questionNumber) {
 
 function createAnswers(questionNumber) {
     for(var i=0; i<questionNumber.answers.length; i++) {
-        var labels = ["Ⓐ","Ⓑ","Ⓒ","Ⓓ"];
+        var labels = ["Ⓓ", "Ⓒ", "Ⓑ", "Ⓐ",];
         var h2Label = $("<h2>").addClass("col-sm-1 answer-label");
         h2Label.text(labels[i]);
 
         var rowDiv = $("<div>").addClass("row");
         var answerButton = $("<button>").addClass("col-sm-10 btn btn-outline-secondary answer");
-        answerButton.attr("id", "answer-" + [i])
         var h3TextDiv = $("<h3>").text(questionNumber.answers[i]);
 
-        answerDiv.append(rowDiv);
+        answerDiv.prepend(rowDiv);
         rowDiv.append(h2Label);
         rowDiv.append(answerButton);
         answerButton.append(h3TextDiv);
@@ -114,7 +113,7 @@ function startTimer() {
     }, 1000);
     if (currentQuestion > questionsArray.length) {
         clearInterval(interval);
-    } else if (timeElapsed == 90) {
+    } else if (timeElapsed == 60) {
         alert("Times up!")
         clearInterval(interval);
     }
@@ -148,14 +147,16 @@ function checkUserCorrect() {
     if (userAnswer === questionsArray[currentQuestion].correctAnswer) {
         questionsArray[currentQuestion].userIsCorrect = true;
         userScore++;
-        var correctAnsAlert = $("<h2>").addClass("shadow-none p-3 mb-5 bg-light rounded border-top")
+        var correctAnsAlert = $("<h2>").addClass("shadow-none p-3 mb-5 bg-light rounded border-top wrong-right")
+        correctAnsAlert.attr("style", "margin-top: 2rem;");
         correctAnsAlert.text("Correct! Nice job!");
         answerDiv.append(correctAnsAlert);
 
     } else {
         questionsArray[currentQuestion].userIsCorrect = false;
         timeElapsed = timeElapsed + 10;
-        var wrongAnsAlert = $("<h2>").addClass("shadow-none p-3 mb-5 bg-light rounded border-top")
+        var wrongAnsAlert = $("<h2>").addClass("shadow-none p-3 mb-5 bg-light rounded border-top wrong-right")
+        wrongAnsAlert.attr("style", "margin-top: 2rem;");
         wrongAnsAlert.text("Wrong answer!");
         answerDiv.append(wrongAnsAlert);
     }
@@ -169,7 +170,7 @@ function getAnswerClicks() {
 
 // Stores username, prints to HTML, saves to localStorage. 
 function getUserNameAndStartQuiz() {
-    userName = $("#username-input").val();
+    userName = "User: " + $("#username-input").val();
     $("#user-name-display").text(userName); 
     userNameArray.push(userName);
     // Starts the quiz, calls $(".answer") eventListener, appends userScore
@@ -187,12 +188,19 @@ function highScore() {
 // Save all user scores
 var individualUserScoreArray = [];
 function saveUserScores() {
+    // Scores current score in array
     userScoreArray.push(userScore);
+    // Formats current score into readable string
     individualUserScore = userNameArray[quizAttempts] + ": " + userScoreArray[quizAttempts];
+    // Saves readable string into array to allow for multiple attempts
     individualUserScoreArray.push(individualUserScore);
-    for(var i=0; i<quizAttempts; i++) {
-        localStorage.setItem("UserScores", JSON.stringify(individualUserScoreArray));
-        $("#highscores-display").html(individualUserScoreArray[i]);
+    // Saves readable string into localStorage
+    localStorage.setItem("UserScores", JSON.stringify(individualUserScoreArray));
+    // Prints the scores to the high scores modal
+    for(var i=0; i<quizAttempts; i++) { 
+        var savedHighScores = JSON.parse(localStorage.getItem("UseScores"));
+        var highScoresDisplay = $("<p>").text(savedHighScores[i]);
+        $("#highscores-display").append(highScoresDisplay);
     }
 }
 
@@ -214,21 +222,28 @@ function continueQuiz() {
     
     // Brings the user to the end screen where they see their score.
     } else {
+        // Remove previous wrongAns or correctAns alert
+        $(".wrong-right").remove();
         checkUserCorrect();
-        questionDiv.empty();
-        answerDiv.empty();
-        $("#timer").empty();
-        $("#user-score").empty();
-        $("user-name-display").text(userName + ": " + "got " + userScore + "/7 correct.");
-        
-        submitBtn.attr("style", "display: none;");
-        $("#retry-button").attr("style", "display: block;")
-        $("#highscores-button").attr("style", "display: block;")
-        
-        // Saves user scores to local storage
-        saveUserScores();
-
-        $("#retry-button").on("click", retryQuiz);
+        // Leaves the wrongAns or correctAns alert onscreen long enough for user to read
+        setTimeout(function() {
+            // Clear up the jumbotron
+            answerDiv.empty();
+            questionDiv.empty();
+            $("#timer").empty();
+            $("#user-score").empty();
+            // 
+            questionDiv.html("<h2>" + userName + ": " + "got " + userScore + "/7 correct." + "</h2>");
+            
+            submitBtn.attr("style", "display: none;");
+            $("#retry-button").attr("style", "display: block;")
+            $("#highscores-button").attr("style", "display: block;")
+            
+            // Saves user scores to local storage
+            saveUserScores();
+    
+            $("#retry-button").on("click", retryQuiz);
+        }, 3000)
     }
 }
 

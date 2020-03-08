@@ -146,6 +146,7 @@ nav img {
 .jumbotron {
     padding-top: 1rem;
     padding-bottom: 1rem;
+    text-align: center;
 }
 
 #submit-button, #start-quiz-button {
