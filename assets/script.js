@@ -113,7 +113,7 @@ function startTimer() {
     }, 1000);
     if (currentQuestion > questionsArray.length - 1) {
         clearInterval(interval);
-    } else if (timeElapsed == 60) {
+    } else if (timeElapsed > 59) {
         alert("Times up!");
         clearInterval(interval);
     }
