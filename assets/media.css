@@ -71,7 +71,7 @@
     h3 { 
         font-size: 3rem;
     }
-    #submit-button {
+    #submit-button, #retry-button {
         padding: .5rem 3rem .5rem 3rem;
         font-size: 200%;
     }

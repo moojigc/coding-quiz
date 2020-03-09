@@ -105,23 +105,23 @@ function renderTimer() {
     };
 }
 
-var interval;
 function startTimer() {
+    var interval;
+    if (currentQuestion > questionsArray.length - 1) {
+        clearInterval(interval);
+    } else if (timeElapsed == 60) {
+        alert("Times up!");
+        clearInterval(interval);
+    }
     interval = setInterval(function() {
         renderTimer();
         timeElapsed++;
     }, 1000);
-    if (currentQuestion > questionsArray.length) {
-        clearInterval(interval);
-    } else if (timeElapsed == 60) {
-        alert("Times up!")
-        clearInterval(interval);
-    }
 }
 
 // Begins quiz
-function beginQuiz() {
-    $("#info-display").attr("style", "display: block;");
+function displayQuestion1() {
+    $("#info-display").attr("style", "width: 90%; display: flex; margin-left: auto; margin-right: auto;");
     submitBtn.attr("style", "display: block;");
     createQuestion(questionsArray[currentQuestion]);
     createAnswers(questionsArray[currentQuestion]);
@@ -152,10 +152,10 @@ function checkUserCorrect() {
 
     } else {
         questionsArray[currentQuestion].userIsCorrect = false;
-        timeElapsed = timeElapsed + 10;
+        timeElapsed = timeElapsed + 3;
         var wrongAnsAlert = $("<h2>").addClass("shadow-none p-3 mb-5 bg-light rounded border-top wrong-right")
         wrongAnsAlert.attr("style", "margin-top: 2rem;");
-        wrongAnsAlert.text("Wrong answer!");
+        wrongAnsAlert.text("Wrong answer! -3 seconds!");
         answerDiv.append(wrongAnsAlert);
     }
     console.log(questionsArray[currentQuestion].userIsCorrect);
@@ -166,15 +166,15 @@ function getAnswerClicks() {
     $(".answer").on("click", getUserAnswer);
 }
 
-// Stores username, prints to HTML, saves to localStorage. 
-function getUserNameAndStartQuiz() {
+// Sets username, score, stores username in array, and calls displayQuestion1 function to start the quiz. 
+function setUserDetailsAndStartQuiz() {
     userName = "User: " + $("#username-input").val();
     $("#user-name-display").text(userName); 
-    userNameArray.push(userName);
-    // Starts the quiz, calls $(".answer") eventListener, appends userScore
-    beginQuiz();
-    getAnswerClicks();
     $("#user-score").append(userScore);
+    userNameArray.push(userName);
+    // Starts the quiz, calls $(".answer") eventListener
+    displayQuestion1();
+    getAnswerClicks();
 }
 
 // Display username and score
@@ -202,7 +202,7 @@ function saveUserScores() {
     }
 }
 
-// Calls the next quiz as well as call many other important functions. Honestly should clean this up but it works lol.
+// Basically the main function that depends on the previous functions and continues the quiz.
 var currentQuestion = 0;
 function continueQuiz() {
     // If statement to check if all the questions have been answered or not.
@@ -213,6 +213,7 @@ function continueQuiz() {
         
         // Checks if user is correct, then increments question#, prints next question, and gets userAnswer.
         checkUserCorrect();
+        $("#user-score").text("Score: " + userScore);
         currentQuestion++;
         createQuestion(questionsArray[currentQuestion]);
         createAnswers(questionsArray[currentQuestion]);
@@ -223,13 +224,17 @@ function continueQuiz() {
         // Remove previous wrongAns or correctAns alert
         $(".wrong-right").remove();
         checkUserCorrect();
+        $("#user-score").text("Score: " + userScore);
         // Leaves the wrongAns or correctAns alert onscreen long enough for user to read
         setTimeout(function() {
-            // Clear up the jumbotron
+            // Saves user scores to local storage
+            saveUserScores();
+            // Clears up the jumbotron FIRST then re-displays elements
             answerDiv.empty();
             questionDiv.empty();
             $("#timer").empty();
             $("#user-score").empty();
+            $("#user-name-display").empty();
             // 
             questionDiv.html("<h2>" + userName + ": " + "got " + userScore + "/7 correct." + "</h2>");
             
@@ -237,27 +242,30 @@ function continueQuiz() {
             $("#retry-button").attr("style", "display: block;")
             $("#highscores-button").attr("style", "display: block;")
             
-            // Saves user scores to local storage
-            saveUserScores();
     
             $("#retry-button").on("click", retryQuiz);
         }, 3000)
     }
+    console.log(currentQuestion);
 }
 
 // Retry quiz
 function retryQuiz() {
+    // Re-display beginning page elements
     $("#start-quiz-button").attr("style", "display: block;");
     $("#username-input").attr("style", "display: block;");
     $("#introduction").attr("style", "display: block;");
-    quizAttempts++;
-    currentQuestion = 0;
-    userScore = 0;
+    // Hide end-page elements
     $("#retry-button").attr("style", "display: none;");
     $("#highscores-button").attr("style", "display: none;");
+    // Important variable for username and score storage
+    quizAttempts++;
+    // Reset questions and current score
+    currentQuestion = 0;
+    userScore = 0;
 }
 
 // Global event listeners
 $("#submit-button").on("click", continueQuiz);
-$("#username-input").on("change", getUserNameAndStartQuiz);
-$("#start-quiz-button").on("click", getUserNameAndStartQuiz);
+$("#username-input").on("change", setUserDetailsAndStartQuiz);
+$("#start-quiz-button").on("click", setUserDetailsAndStartQuiz);
