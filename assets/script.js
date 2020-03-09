@@ -13,6 +13,7 @@ var totalTime = 60;
 var timeElapsed = 0;
 var userAnswer;
 var quizAttempts = 0;
+var savedHighScores = [];
 
 // All the questions
 
@@ -197,12 +198,23 @@ function highScore() {
     questionDiv.append(scoreDisplayDiv);
 }
 
-var savedHighScores = JSON.parse(localStorage.getItem("UserScores"));
-savedHighScores.forEach(function(score) {
-    // var savedHighScoreRow = $("<h2>").addClass("row").text(savedHighScores[i]);
-    // $("#highscores-display").empty();
-    $("#highscores-display").html($("<h2>").addClass("row").text(score));
-});
+// Displays all saved scores to the modal
+function displayAllScores() {
+    // Empties the div so no repeats
+    $("#highscores-display").empty();
+    // Prints each score to the div, if there are saved scores
+    if (localStorage.getItem("UserScores") !== null) {
+        savedHighScores = JSON.parse(localStorage.getItem("UserScores"));
+        savedHighScores.forEach(score => {
+            highScoresDisplay = $("<h2>");
+            highScoresDisplay.addClass("row");
+            highScoresDisplay.append(score);
+            $("#highscores-display").append(highScoresDisplay);
+        }); 
+    } else {
+        return;
+    }
+}
 // Save all user scores
 var individualUserScoreArray = [];
 function saveUserScores() {
@@ -216,11 +228,7 @@ function saveUserScores() {
     localStorage.setItem("UserScores", JSON.stringify(individualUserScoreArray));
     savedHighScores = JSON.parse(localStorage.getItem("UserScores"));
     // Displays each user's name and high score in the modal
-    savedHighScores.forEach(function(score) {
-        // var savedHighScoreRow = $("<h2>").addClass("row").text(savedHighScores[i]);
-        // $("#highscores-display").empty();
-        $("#highscores-display").html($("<h2>").addClass("row").text(score));
-    });
+    displayAllScores();
 }
 
 // Basically the main function that depends on the previous functions and continues the quiz.
@@ -301,3 +309,4 @@ function retryQuiz() {
 $("#submit-button").on("click", continueQuiz);
 $("#username-input").on("change", startQuiz);
 $("#start-quiz-button").on("click", startQuiz);
+$("#highscores-button").on("click", displayAllScores);
