@@ -105,27 +105,20 @@ function renderTimer() {
     };
 }
 
+var interval;
 function startTimer() {
-    var interval;
+    interval = setInterval(function() {
+        renderTimer();
+        timeElapsed++;
+    }, 1000);
+}
+function endTimer() {
     if (currentQuestion > questionsArray.length - 1) {
         clearInterval(interval);
     } else if (timeElapsed == 60) {
         alert("Times up!");
         clearInterval(interval);
     }
-    interval = setInterval(function() {
-        renderTimer();
-        timeElapsed++;
-    }, 1000);
-}
-
-// Begins quiz
-function displayQuestion1() {
-    $("#info-display").attr("style", "width: 90%; display: flex; margin-left: auto; margin-right: auto;");
-    submitBtn.attr("style", "display: block;");
-    createQuestion(questionsArray[currentQuestion]);
-    createAnswers(questionsArray[currentQuestion]);
-    startTimer();
 }
 
 var answerBtnArray = [];
@@ -167,13 +160,22 @@ function getAnswerClicks() {
 }
 
 // Sets username, score, stores username in array, and calls displayQuestion1 function to start the quiz. 
-function setUserDetailsAndStartQuiz() {
-    userName = "User: " + $("#username-input").val();
-    $("#user-name-display").text(userName); 
-    $("#user-score").append(userScore);
+function startQuiz() {
+    userName = $("#username-input").val();
     userNameArray.push(userName);
+    // Hide elements
+    $("#start-quiz-button").attr("style", "display: none;");
+    $("#username-input").attr("style", "display: none;")
+    $("#introduction").attr("style", "display: none;")
+    // Display elements
+    $("#user-name-display").text("User: " + userName); 
+    $("#user-score").append(userScore);
+    $("#info-display").attr("style", "width: 90%; display: flex; margin-left: auto; margin-right: auto;");
+    submitBtn.attr("style", "display: block;");
     // Starts the quiz, calls $(".answer") eventListener
-    displayQuestion1();
+    createQuestion(questionsArray[currentQuestion]);
+    createAnswers(questionsArray[currentQuestion]);
+    startTimer();
     getAnswerClicks();
 }
 
@@ -195,11 +197,11 @@ function saveUserScores() {
     // Saves readable string into localStorage
     localStorage.setItem("UserScores", JSON.stringify(individualUserScoreArray));
     // Prints the scores to the high scores modal
-    for(var i=0; i<quizAttempts; i++) { 
-        var savedHighScores = JSON.parse(localStorage.getItem("UseScores"));
-        var highScoresDisplay = $("<p>").text(savedHighScores[i]);
-        $("#highscores-display").append(highScoresDisplay);
-    }
+    var savedHighScores = JSON.parse(localStorage.getItem("UseScores"));
+    var highScoresDisplay = $("<p>").text(savedHighScores);
+    $("#highscores-display").append(highScoresDisplay);
+    //             for(var i=0; i<quizAttempts; i++) { 
+    // }
 }
 
 // Basically the main function that depends on the previous functions and continues the quiz.
@@ -210,7 +212,6 @@ function continueQuiz() {
         // Empty both divs...
         questionDiv.empty();
         answerDiv.empty();
-        
         // Checks if user is correct, then increments question#, prints next question, and gets userAnswer.
         checkUserCorrect();
         $("#user-score").text("Score: " + userScore);
@@ -218,9 +219,16 @@ function continueQuiz() {
         createQuestion(questionsArray[currentQuestion]);
         createAnswers(questionsArray[currentQuestion]);
         getAnswerClicks();
+            if (currentQuestion > questionsArray.length - 1) {
+        clearInterval(interval);
+    } else if (timeElapsed == 60) {
+        alert("Times up!");
+        clearInterval(interval);
+    }
     
     // Brings the user to the end screen where they see their score.
     } else {
+        endTimer();
         // Remove previous wrongAns or correctAns alert
         $(".wrong-right").remove();
         checkUserCorrect();
@@ -237,6 +245,11 @@ function continueQuiz() {
             $("#user-name-display").empty();
             // 
             questionDiv.html("<h2>" + userName + ": " + "got " + userScore + "/7 correct." + "</h2>");
+            if (userScore === 7) {
+                questionDiv.append("<h2>Perfect score! Congrats!</h2>");
+            } else if (userScore < 4) {
+                questionDiv.append("<h2>Better luck next time.</h2>")
+            }
             
             submitBtn.attr("style", "display: none;");
             $("#retry-button").attr("style", "display: block;")
@@ -258,6 +271,7 @@ function retryQuiz() {
     // Hide end-page elements
     $("#retry-button").attr("style", "display: none;");
     $("#highscores-button").attr("style", "display: none;");
+    questionDiv.empty();
     // Important variable for username and score storage
     quizAttempts++;
     // Reset questions and current score
@@ -267,5 +281,5 @@ function retryQuiz() {
 
 // Global event listeners
 $("#submit-button").on("click", continueQuiz);
-$("#username-input").on("change", setUserDetailsAndStartQuiz);
-$("#start-quiz-button").on("click", setUserDetailsAndStartQuiz);
+$("#username-input").on("change", startQuiz);
+$("#start-quiz-button").on("click", startQuiz);
