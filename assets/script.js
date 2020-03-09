@@ -73,7 +73,7 @@ function createQuestion(questionNumber) {
     h2Div.attr("style", "text-align: center");
     questionDiv.append(h2Div);
 }
-
+// Creates answers
 function createAnswers(questionNumber) {
     for(var i=0; i<questionNumber.answers.length; i++) {
         var labels = ["Ⓓ", "Ⓒ", "Ⓑ", "Ⓐ",];
@@ -105,14 +105,11 @@ function renderTimer() {
     };
 }
 
-var interval;
 function startTimer() {
-    interval = setInterval(function() {
+    var interval = setInterval(function() {
         renderTimer();
         timeElapsed++;
     }, 1000);
-}
-function endTimer() {
     if (currentQuestion > questionsArray.length - 1) {
         clearInterval(interval);
     } else if (timeElapsed == 60) {
@@ -137,19 +134,34 @@ function getUserAnswer() {
 function checkUserCorrect() {
     if (userAnswer === questionsArray[currentQuestion].correctAnswer) {
         questionsArray[currentQuestion].userIsCorrect = true;
+        // Increase current user's score
         userScore++;
+        // Create correct answer alert
         var correctAnsAlert = $("<h2>").addClass("shadow-none p-3 mb-5 bg-light rounded border-top wrong-right")
         correctAnsAlert.attr("style", "margin-top: 2rem;");
         correctAnsAlert.text("Correct! Nice job!");
-        answerDiv.append(correctAnsAlert);
-
+        // Append it below the submit button so it isn't annoying if you're trying to click the submit button
+        $("#submit-retry-button-div").parent().append(correctAnsAlert);
+        // Animate it away
+        correctAnsAlert.animate({opacity: "0"}, 1500);
+        setTimeout(function() {
+            correctAnsAlert.remove();
+        }, 1500);
     } else {
         questionsArray[currentQuestion].userIsCorrect = false;
+        // Time penalty
         timeElapsed = timeElapsed + 3;
+        // Create wrong answer alert
         var wrongAnsAlert = $("<h2>").addClass("shadow-none p-3 mb-5 bg-light rounded border-top wrong-right")
         wrongAnsAlert.attr("style", "margin-top: 2rem;");
         wrongAnsAlert.text("Wrong answer! -3 seconds!");
-        answerDiv.append(wrongAnsAlert);
+        // Append it below the submit button so it isn't annoying if you're trying to click the submit button
+        $("#submit-retry-button-div").parent().append(wrongAnsAlert);
+        // Animate it away
+        wrongAnsAlert.animate({opacity: "0"}, 1500);
+        setTimeout(function() {
+            wrongAnsAlert.remove();
+        }, 1500);
     }
     console.log(questionsArray[currentQuestion].userIsCorrect);
 }
@@ -185,6 +197,12 @@ function highScore() {
     questionDiv.append(scoreDisplayDiv);
 }
 
+var savedHighScores = JSON.parse(localStorage.getItem("UserScores"));
+savedHighScores.forEach(function(score) {
+    // var savedHighScoreRow = $("<h2>").addClass("row").text(savedHighScores[i]);
+    // $("#highscores-display").empty();
+    $("#highscores-display").html($("<h2>").addClass("row").text(score));
+});
 // Save all user scores
 var individualUserScoreArray = [];
 function saveUserScores() {
@@ -196,12 +214,13 @@ function saveUserScores() {
     individualUserScoreArray.push(individualUserScore);
     // Saves readable string into localStorage
     localStorage.setItem("UserScores", JSON.stringify(individualUserScoreArray));
-    // Prints the scores to the high scores modal
-    var savedHighScores = JSON.parse(localStorage.getItem("UseScores"));
-    var highScoresDisplay = $("<p>").text(savedHighScores);
-    $("#highscores-display").append(highScoresDisplay);
-    //             for(var i=0; i<quizAttempts; i++) { 
-    // }
+    savedHighScores = JSON.parse(localStorage.getItem("UserScores"));
+    // Displays each user's name and high score in the modal
+    savedHighScores.forEach(function(score) {
+        // var savedHighScoreRow = $("<h2>").addClass("row").text(savedHighScores[i]);
+        // $("#highscores-display").empty();
+        $("#highscores-display").html($("<h2>").addClass("row").text(score));
+    });
 }
 
 // Basically the main function that depends on the previous functions and continues the quiz.
@@ -228,7 +247,6 @@ function continueQuiz() {
     
     // Brings the user to the end screen where they see their score.
     } else {
-        endTimer();
         // Remove previous wrongAns or correctAns alert
         $(".wrong-right").remove();
         checkUserCorrect();
@@ -248,16 +266,16 @@ function continueQuiz() {
             if (userScore === 7) {
                 questionDiv.append("<h2>Perfect score! Congrats!</h2>");
             } else if (userScore < 4) {
-                questionDiv.append("<h2>Better luck next time.</h2>")
+                questionDiv.append("<h2>Better luck next time.</h2>");
             }
             
             submitBtn.attr("style", "display: none;");
-            $("#retry-button").attr("style", "display: block;")
-            $("#highscores-button").attr("style", "display: block;")
+            $("#retry-button").attr("style", "display: block;");
+            $("#highscores-button").attr("style", "display: block;");
             
     
             $("#retry-button").on("click", retryQuiz);
-        }, 3000)
+        }, 1500)
     }
     console.log(currentQuestion);
 }
@@ -268,9 +286,9 @@ function retryQuiz() {
     $("#start-quiz-button").attr("style", "display: block;");
     $("#username-input").attr("style", "display: block;");
     $("#introduction").attr("style", "display: block;");
+    $("#highscores-button").attr("style", "display: block; font-size: 1rem; padding: 8px; height: fit-content;")
     // Hide end-page elements
     $("#retry-button").attr("style", "display: none;");
-    $("#highscores-button").attr("style", "display: none;");
     questionDiv.empty();
     // Important variable for username and score storage
     quizAttempts++;
