@@ -82,7 +82,7 @@
         font-size: 150%;
     }
     #username-input {
-        height: 4rem;
+        height: 6rem;
     }
     input::placeholder {
         font-size: 300%;
